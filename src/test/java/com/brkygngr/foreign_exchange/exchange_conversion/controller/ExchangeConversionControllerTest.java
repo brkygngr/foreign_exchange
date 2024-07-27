@@ -16,6 +16,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.mockito.Mockito.mockStatic;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -59,7 +60,9 @@ class ExchangeConversionControllerTest {
         try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
             mockedStatic.when(Instant::now).thenReturn(instant);
 
-            final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.valueOf(-10), "EUR", "USD");
+            final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.valueOf(-10),
+                                                                                    "EUR",
+                                                                                    "USD");
 
             mockMvc.perform(MockMvcRequestBuilders
                                     .post("/api/v1/conversion")
@@ -81,7 +84,9 @@ class ExchangeConversionControllerTest {
         try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
             mockedStatic.when(Instant::now).thenReturn(instant);
 
-            final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.valueOf(0), "EUR", "USD");
+            final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.valueOf(0),
+                                                                                    "EUR",
+                                                                                    "USD");
 
             mockMvc.perform(MockMvcRequestBuilders
                                     .post("/api/v1/conversion")
@@ -134,7 +139,9 @@ class ExchangeConversionControllerTest {
                                     .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value("Source currency is required!"));
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                                   .value(containsInAnyOrder("Source currency is required!",
+                                                                             "Source currency must be a three letter currency code!")));
         }
     }
 
@@ -200,7 +207,8 @@ class ExchangeConversionControllerTest {
                                     .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value("Source currency must be a three letter currency code!"));
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                                   .value("Source currency must be a three letter currency code!"));
         }
     }
 
@@ -222,7 +230,8 @@ class ExchangeConversionControllerTest {
                                     .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value("Source currency must be a three letter currency code!"));
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                                   .value("Source currency must be a three letter currency code!"));
         }
     }
 }

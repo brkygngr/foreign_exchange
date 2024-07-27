@@ -18,7 +18,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public class FXApiExchangeRateService implements ExchangeRateService {
 
-    @Value("${app.fx.apiUrl]")
+    @Value("${app.fx.apiUrl}")
     private final String apiUrl;
 
     @Value("${app.fx.apiKey}")

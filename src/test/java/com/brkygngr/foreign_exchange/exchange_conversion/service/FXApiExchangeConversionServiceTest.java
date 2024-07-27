@@ -79,4 +79,22 @@ class FXApiExchangeConversionServiceTest {
 
         assertEquals(BigDecimal.valueOf(10), result.convertedAmount());
     }
+
+    @Test
+    void convertAmount_whenAPIResponseIsNull_thenThrowsResponseNullException() {
+        final String sourceCurrency = "USD";
+        final String targetCurrency = "EUR";
+
+        Mockito.when(fxApiAccessor.getLatestExchangeRateBetween(anyString(), anyString()))
+               .thenReturn(Optional.empty());
+
+        final Exception exception = assertThrows(ResponseNullException.class,
+                                                 () -> fxApiExchangeConversionService.convertAmount(BigDecimal.ONE,
+                                                                                                    sourceCurrency,
+                                                                                                    targetCurrency));
+
+        assertEquals(String.format("For source %s and target %s currency API responded with null!",
+                                   sourceCurrency,
+                                   targetCurrency), exception.getMessage());
+    }
 }

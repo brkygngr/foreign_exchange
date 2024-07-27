@@ -1,5 +1,6 @@
 package com.brkygngr.foreign_exchange.exchange_conversion.service;
 
+import com.brkygngr.foreign_exchange.exception.ResponseNullException;
 import com.brkygngr.foreign_exchange.exchange_conversion.dto.ExchangeConversion;
 import com.brkygngr.foreign_exchange.fx_api.FXApiAccessor;
 import com.brkygngr.foreign_exchange.fx_api.dto.FXApiExchangeRateResponse;
@@ -21,7 +22,13 @@ public class FXApiExchangeConversionService implements ExchangeConversionService
         FXApiExchangeRateResponse fxApiExchangeRateResponse = fxApiAccessor
                 .getLatestExchangeRateBetween(sourceCurrency,
                                               targetCurrency)
-                .orElse(null);
+                .orElseThrow(
+                        () -> new ResponseNullException(
+                                String.format(
+                                        "For source %s and target %s currency API responded with null!",
+                                        sourceCurrency,
+                                        targetCurrency))
+                );
 
 
         BigDecimal exchangeRate = fxApiExchangeRateResponse.data().get(targetCurrency).value();

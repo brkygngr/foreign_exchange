@@ -16,6 +16,9 @@ public record ExchangeConversionRequest(@NotNull(message = "Amount is required!"
                                               max = 3)
                                         String sourceCurrency,
                                         @NotBlank(message = "Target currency is required!")
+                                        @Size(message = "Target currency must be a three letter currency code!",
+                                              min = 3,
+                                              max = 3)
                                         String targetCurrency) {
 
 }

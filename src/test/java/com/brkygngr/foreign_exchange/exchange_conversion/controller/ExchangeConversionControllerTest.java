@@ -176,7 +176,7 @@ class ExchangeConversionControllerTest {
         try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
             mockedStatic.when(Instant::now).thenReturn(instant);
 
-            final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "EUR", null);
+            final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "EUR", "");
 
             mockMvc.perform(MockMvcRequestBuilders
                                     .post("/api/v1/conversion")
@@ -185,7 +185,9 @@ class ExchangeConversionControllerTest {
                                     .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value("Target currency is required!"));
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                                   .value(containsInAnyOrder("Target currency is required!",
+                                                                             "Target currency must be a three letter currency code!")));
         }
     }
 
@@ -232,6 +234,52 @@ class ExchangeConversionControllerTest {
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
                    .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
                                                    .value("Source currency must be a three letter currency code!"));
+        }
+    }
+
+    @Test
+    void getConversion_whenTargetCurrencyHasMoreThenThreeLetters_returnsBadRequestErrorResponse() throws Exception {
+        final String timestamp = "2024-01-01T00:00:00Z";
+
+        final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+        try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
+            mockedStatic.when(Instant::now).thenReturn(instant);
+
+            final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "EUR", "ABCDE");
+
+            mockMvc.perform(MockMvcRequestBuilders
+                                    .post("/api/v1/conversion")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(MediaType.APPLICATION_JSON))
+                   .andExpect(status().isBadRequest())
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                                   .value("Target currency must be a three letter currency code!"));
+        }
+    }
+
+    @Test
+    void getConversion_whenTargetCurrencyHasLessThenThreeLetters_returnsBadRequestErrorResponse() throws Exception {
+        final String timestamp = "2024-01-01T00:00:00Z";
+
+        final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+        try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
+            mockedStatic.when(Instant::now).thenReturn(instant);
+
+            final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "USD", "A");
+
+            mockMvc.perform(MockMvcRequestBuilders
+                                    .post("/api/v1/conversion")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(MediaType.APPLICATION_JSON))
+                   .andExpect(status().isBadRequest())
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                                   .value("Target currency must be a three letter currency code!"));
         }
     }
 }

@@ -5,6 +5,7 @@ import com.brkygngr.foreign_exchange.exchange_rate.dto.ExchangeRate;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiCurrencyRate;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiExchangeRateResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FXApiExchangeRateService implements ExchangeRateService {
 
     @Value("${app.fx.apiUrl}")
@@ -27,14 +29,16 @@ public class FXApiExchangeRateService implements ExchangeRateService {
     private final RestTemplate restTemplate;
 
     public ExchangeRate getLatestExchangeRateBetween(final String sourceCurrency, final String targetCurrency) {
+        String url = UriComponentsBuilder.fromHttpUrl(apiUrl + "/latest")
+                                         .queryParam("base_currency", sourceCurrency)
+                                         .queryParam("currencies", targetCurrency)
+                                         .build()
+                                         .toUriString();
+
+        log.info("getLatestExchangeRateBetween request url: {}", url);
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("apiKey", apiKey);
-
-        String url = UriComponentsBuilder.fromHttpUrl(apiUrl + "/latest")
-                .queryParam("base_currency", sourceCurrency)
-                .queryParam("currencies", targetCurrency)
-                .build()
-                .toUriString();
 
         ResponseEntity<FXApiExchangeRateResponse> responseEntity = restTemplate.exchange(
                 url,
@@ -46,7 +50,9 @@ public class FXApiExchangeRateService implements ExchangeRateService {
         FXApiExchangeRateResponse fxApiExchangeRateResponse = responseEntity.getBody();
 
         if (fxApiExchangeRateResponse == null) {
-            throw new FXApiException(String.format("For source %s and target %s currency API responded with null!", sourceCurrency, targetCurrency));
+            throw new FXApiException(String.format("For source %s and target %s currency API responded with null!",
+                                                   sourceCurrency,
+                                                   targetCurrency));
         }
 
         FXApiCurrencyRate currencyRate = fxApiExchangeRateResponse.data().get(targetCurrency);

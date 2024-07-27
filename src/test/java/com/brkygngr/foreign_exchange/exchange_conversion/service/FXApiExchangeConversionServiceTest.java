@@ -1,21 +1,35 @@
 package com.brkygngr.foreign_exchange.exchange_conversion.service;
 
+import com.brkygngr.foreign_exchange.exception.ResponseNullException;
 import com.brkygngr.foreign_exchange.exchange_conversion.dto.ExchangeConversion;
+import com.brkygngr.foreign_exchange.fx_api.FXApiAccessor;
+import com.brkygngr.foreign_exchange.fx_api.dto.FXApiCurrencyRate;
+import com.brkygngr.foreign_exchange.fx_api.dto.FXApiExchangeRateResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 class FXApiExchangeConversionServiceTest {
 
     private AutoCloseable autoCloseable;
+
+    @Mock
+    private FXApiAccessor fxApiAccessor;
 
     private FXApiExchangeConversionService fxApiExchangeConversionService;
 
@@ -23,7 +37,7 @@ class FXApiExchangeConversionServiceTest {
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
 
-        fxApiExchangeConversionService = new FXApiExchangeConversionService();
+        fxApiExchangeConversionService = new FXApiExchangeConversionService(fxApiAccessor);
     }
 
     @AfterEach
@@ -42,5 +56,21 @@ class FXApiExchangeConversionServiceTest {
 
             assertEquals(randomUUID, result.id());
         }
+    }
+
+    @Test
+    void convertAmount_whenAmountIsFiveAndConversionRateIsTwo_returnsConvertedAmountAsTen() {
+        final String targetCurrency = "USD";
+
+        when(fxApiAccessor.getLatestExchangeRateBetween(anyString(),
+                                                        anyString())).thenReturn(Optional.of(new FXApiExchangeRateResponse(
+                null,
+                Map.of(targetCurrency, new FXApiCurrencyRate(targetCurrency, BigDecimal.TWO)))));
+
+        ExchangeConversion result = fxApiExchangeConversionService.convertAmount(BigDecimal.valueOf(5),
+                                                                                 "EUR",
+                                                                                 targetCurrency);
+
+        assertEquals(BigDecimal.valueOf(10), result.convertedAmount());
     }
 }

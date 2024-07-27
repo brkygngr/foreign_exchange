@@ -4,6 +4,8 @@ import com.brkygngr.foreign_exchange.exchange_rate.dto.ExchangeRate;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiExchangeRateResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -21,7 +23,10 @@ public class FXApiExchangeRateService implements ExchangeRateService {
     private final RestTemplate restTemplate;
 
     public ExchangeRate getLatestExchangeRateBetween(final String sourceCurrency, final String targetCurrency) {
-        restTemplate.exchange(apiUrl, HttpMethod.GET, null, FXApiExchangeRateResponse.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("apiKey", apiKey);
+
+        restTemplate.exchange(apiUrl, HttpMethod.GET, new HttpEntity<Void>(headers), FXApiExchangeRateResponse.class);
 
         return null;
     }

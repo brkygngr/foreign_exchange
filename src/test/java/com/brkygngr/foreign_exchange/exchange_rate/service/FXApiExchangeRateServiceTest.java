@@ -94,4 +94,30 @@ class FXApiExchangeRateServiceTest {
 
         assertEquals(String.format("For source %s and target %s currency API responded with null!", sourceCurrency, targetCurrency), exception.getMessage());
     }
+
+    @Test
+    void getLatestExchangeRateBetween_returnsUSDToEURExchangeRate() {
+        final String sourceCurrency = "USD";
+        final String targetCurrency = "EUR";
+        final BigDecimal value = new BigDecimal(10);
+
+        final FXApiCurrencyRate fxApiCurrencyRate = new FXApiCurrencyRate();
+        fxApiCurrencyRate.setCode(targetCurrency);
+        fxApiCurrencyRate.setValue(value);
+
+        final Map<String, FXApiCurrencyRate> currencyRateMap = new HashMap<>();
+        currencyRateMap.put(targetCurrency, fxApiCurrencyRate);
+
+        final FXApiExchangeRateResponse exchangeRateResponse = new FXApiExchangeRateResponse(null, currencyRateMap);
+
+        final ResponseEntity<FXApiExchangeRateResponse> responseEntity = ResponseEntity.ok(exchangeRateResponse);
+
+        Mockito.when(restTemplate.exchange(anyString(), any(), any(), eq(FXApiExchangeRateResponse.class))).thenReturn(responseEntity);
+
+        final ExchangeRate result = fxApiExchangeRateService.getLatestExchangeRateBetween(sourceCurrency, targetCurrency);
+
+        assertEquals(sourceCurrency, result.sourceCurrency());
+        assertEquals(targetCurrency, result.targetCurrency());
+        assertEquals(value, result.value());
+    }
 }

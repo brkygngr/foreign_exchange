@@ -2,6 +2,7 @@ package com.brkygngr.foreign_exchange.exchange_rate.service;
 
 import com.brkygngr.foreign_exchange.exception.FXApiException;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.ExchangeRate;
+import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiCurrencyRate;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiExchangeRateResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,6 +49,8 @@ public class FXApiExchangeRateService implements ExchangeRateService {
             throw new FXApiException(String.format("For source %s and target %s currency API responded with null!", sourceCurrency, targetCurrency));
         }
 
-        return null;
+        FXApiCurrencyRate currencyRate = fxApiExchangeRateResponse.data().get(targetCurrency);
+
+        return currencyRate.toExchangeRate(sourceCurrency);
     }
 }

@@ -11,6 +11,7 @@ public record ExchangeConversionRequest(@NotNull(message = "Amount is required!"
                                         BigDecimal amount,
                                         @NotBlank(message = "Source currency is required!")
                                         String sourceCurrency,
+                                        @NotBlank(message = "Target currency is required!")
                                         String targetCurrency) {
 
 }

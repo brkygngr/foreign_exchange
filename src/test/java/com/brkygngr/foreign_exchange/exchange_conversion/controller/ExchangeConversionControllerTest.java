@@ -137,4 +137,48 @@ class ExchangeConversionControllerTest {
                    .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value("Source currency is required!"));
         }
     }
+
+    @Test
+    void getConversion_whenTargetCurrencyIsNull_returnsBadRequestErrorResponse() throws Exception {
+        final String timestamp = "2024-01-01T00:00:00Z";
+
+        final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+        try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
+            mockedStatic.when(Instant::now).thenReturn(instant);
+
+            final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "EUR", null);
+
+            mockMvc.perform(MockMvcRequestBuilders
+                                    .post("/api/v1/conversion")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(MediaType.APPLICATION_JSON))
+                   .andExpect(status().isBadRequest())
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value("Target currency is required!"));
+        }
+    }
+
+    @Test
+    void getConversion_whenTargetCurrencyIsEmptyString_returnsBadRequestErrorResponse() throws Exception {
+        final String timestamp = "2024-01-01T00:00:00Z";
+
+        final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+        try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
+            mockedStatic.when(Instant::now).thenReturn(instant);
+
+            final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "EUR", null);
+
+            mockMvc.perform(MockMvcRequestBuilders
+                                    .post("/api/v1/conversion")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(request))
+                                    .accept(MediaType.APPLICATION_JSON))
+                   .andExpect(status().isBadRequest())
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value("Target currency is required!"));
+        }
+    }
 }

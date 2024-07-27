@@ -1,4 +1,4 @@
-package com.brkygngr.foreign_exchange.exchange_rate.config;
+package com.brkygngr.foreign_exchange.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,4 +1,4 @@
-package com.brkygngr.foreign_exchange.exchange_rate.dto.external;
+package com.brkygngr.foreign_exchange.fx_api.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

@@ -17,4 +17,13 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(new ErrorResponse(Instant.now(), errors));
     }
+
+    @ExceptionHandler(InvalidCurrencyException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidCurrencyException(InvalidCurrencyException exception) {
+        String[] errors = new String[] {
+                exception.getMessage()
+        };
+
+        return ResponseEntity.unprocessableEntity().body(new ErrorResponse(Instant.now(), errors));
+    }
 }

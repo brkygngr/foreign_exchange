@@ -1,6 +1,7 @@
 package com.brkygngr.foreign_exchange.exchange_rate.service;
 
 import com.brkygngr.foreign_exchange.exception.FXApiException;
+import com.brkygngr.foreign_exchange.exception.InvalidCurrencyException;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.ExchangeRate;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiCurrencyRate;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiExchangeRateResponse;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -40,12 +42,22 @@ public class FXApiExchangeRateService implements ExchangeRateService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("apiKey", apiKey);
 
-        ResponseEntity<FXApiExchangeRateResponse> responseEntity = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                new HttpEntity<Void>(headers),
-                FXApiExchangeRateResponse.class
-        );
+        ResponseEntity<FXApiExchangeRateResponse> responseEntity;
+
+        try {
+            responseEntity = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    new HttpEntity<Void>(headers),
+                    FXApiExchangeRateResponse.class
+            );
+        } catch (HttpClientErrorException.UnprocessableEntity exception) {
+            log.error(String.format("For source %s and target %s currency API responded with unprocessable!",
+                                    sourceCurrency,
+                                    targetCurrency), exception);
+
+            throw new InvalidCurrencyException("One or more currency codes are invalid!");
+        }
 
         FXApiExchangeRateResponse fxApiExchangeRateResponse = responseEntity.getBody();
 

@@ -1,5 +1,6 @@
 package com.brkygngr.foreign_exchange.exchange_rate.controller;
 
+import com.brkygngr.foreign_exchange.exception.InvalidCurrencyException;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.ExchangeRate;
 import com.brkygngr.foreign_exchange.exchange_rate.service.ExchangeRateService;
 import org.junit.jupiter.api.Test;
@@ -84,7 +85,8 @@ class ExchangeRateControllerTest {
                                     .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value("Source currency must be a three letter source currency code!"));
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                                   .value("Source currency must be a three letter source currency code!"));
         }
     }
 
@@ -104,7 +106,8 @@ class ExchangeRateControllerTest {
                                     .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value("Target currency must be a three letter source currency code!"));
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                                   .value("Target currency must be a three letter source currency code!"));
         }
     }
 
@@ -115,16 +118,36 @@ class ExchangeRateControllerTest {
 
         ExchangeRate exchangeRate = new ExchangeRate(sourceCurrency, targetCurrency, BigDecimal.ONE);
 
-        Mockito.when(exchangeRateService.getLatestExchangeRateBetween("USD", "EUR")).thenReturn(exchangeRate);
+        Mockito.when(exchangeRateService.getLatestExchangeRateBetween(sourceCurrency, targetCurrency)).thenReturn(
+                exchangeRate);
 
         mockMvc.perform(MockMvcRequestBuilders
                                 .get("/api/v1/exchange-rate")
-                                .queryParam("sourceCurrency", "USD")
-                                .queryParam("targetCurrency", "EUR")
+                                .queryParam("sourceCurrency", sourceCurrency)
+                                .queryParam("targetCurrency", targetCurrency)
                                 .accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isOk())
                .andExpect(MockMvcResultMatchers.jsonPath("$.sourceCurrency").value(exchangeRate.sourceCurrency()))
                .andExpect(MockMvcResultMatchers.jsonPath("$.targetCurrency").value(exchangeRate.targetCurrency()))
                .andExpect(MockMvcResultMatchers.jsonPath("$.value").value(exchangeRate.value()));
+    }
+
+    @Test
+    void getExchangeRateBetween_whenInvalidCurrencyIsGiven_ThenThrowsAnException() throws Exception {
+        final String invalidCurrency = "ABC";
+        final String targetCurrency = "EUR";
+
+        Mockito.when(exchangeRateService.getLatestExchangeRateBetween(invalidCurrency, targetCurrency))
+               .thenThrow(new InvalidCurrencyException("invalid currency error"));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                                .get("/api/v1/exchange-rate")
+                                .queryParam("sourceCurrency", invalidCurrency)
+                                .queryParam("targetCurrency", "EUR")
+                                .accept(MediaType.APPLICATION_JSON))
+               .andExpect(status().isUnprocessableEntity())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").exists())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                               .value("invalid currency error"));
     }
 }

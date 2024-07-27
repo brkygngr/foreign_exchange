@@ -1,6 +1,6 @@
 package com.brkygngr.foreign_exchange.exchange_rate.service;
 
-import com.brkygngr.foreign_exchange.exception.FXApiException;
+import com.brkygngr.foreign_exchange.exception.ResponseNullException;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.ExchangeRate;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiCurrencyRate;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiExchangeRateResponse;
@@ -118,7 +118,7 @@ class FXApiExchangeRateServiceTest {
         Mockito.when(restTemplate.exchange(anyString(), any(), any(), eq(FXApiExchangeRateResponse.class)))
                .thenReturn(ResponseEntity.ok(null));
 
-        Exception exception = assertThrows(FXApiException.class,
+        Exception exception = assertThrows(ResponseNullException.class,
                                            () -> fxApiExchangeRateService.getLatestExchangeRateBetween(sourceCurrency,
                                                                                                        targetCurrency));
 

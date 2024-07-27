@@ -12,14 +12,14 @@ import java.time.Instant;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+    public ResponseEntity<ErrorResponse> handleBadRequest(MethodArgumentNotValidException exception) {
         String[] errors = exception.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toArray(String[]::new);
 
         return ResponseEntity.badRequest().body(new ErrorResponse(Instant.now(), errors));
     }
 
-    @ExceptionHandler(InvalidCurrencyException.class)
-    public ResponseEntity<ErrorResponse> handleInvalidCurrencyException(InvalidCurrencyException exception) {
+    @ExceptionHandler({InvalidCurrencyException.class, ResponseNullException.class})
+    public ResponseEntity<ErrorResponse> handleUnprocessableEntity(InvalidCurrencyException exception) {
         String[] errors = new String[] {
                 exception.getMessage()
         };

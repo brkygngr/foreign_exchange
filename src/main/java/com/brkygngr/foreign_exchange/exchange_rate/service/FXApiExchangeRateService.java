@@ -1,6 +1,6 @@
 package com.brkygngr.foreign_exchange.exchange_rate.service;
 
-import com.brkygngr.foreign_exchange.exception.FXApiException;
+import com.brkygngr.foreign_exchange.exception.ResponseNullException;
 import com.brkygngr.foreign_exchange.exception.InvalidCurrencyException;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.ExchangeRate;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiCurrencyRate;
@@ -62,9 +62,9 @@ public class FXApiExchangeRateService implements ExchangeRateService {
         FXApiExchangeRateResponse fxApiExchangeRateResponse = responseEntity.getBody();
 
         if (fxApiExchangeRateResponse == null) {
-            throw new FXApiException(String.format("For source %s and target %s currency API responded with null!",
-                                                   sourceCurrency,
-                                                   targetCurrency));
+            throw new ResponseNullException(String.format("For source %s and target %s currency API responded with null!",
+                                                          sourceCurrency,
+                                                          targetCurrency));
         }
 
         FXApiCurrencyRate currencyRate = fxApiExchangeRateResponse.data().get(targetCurrency);

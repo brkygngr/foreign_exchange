@@ -47,12 +47,18 @@ class FXApiExchangeConversionServiceTest {
 
     @Test
     void convertAmount_returnsATransactionId() {
-        UUID randomUUID = UUID.fromString("3d98d61f-2b64-4f11-8e05-a2a5ff5b13ec");
+        final UUID randomUUID = UUID.fromString("3d98d61f-2b64-4f11-8e05-a2a5ff5b13ec");
+        final String targetCurrency = "USD";
+
+        when(fxApiAccessor.getLatestExchangeRateBetween(anyString(),
+                                                        anyString())).thenReturn(Optional.of(new FXApiExchangeRateResponse(
+                null,
+                Map.of(targetCurrency, new FXApiCurrencyRate(targetCurrency, BigDecimal.TWO)))));
 
         try (MockedStatic<UUID> mockedStatic = mockStatic(UUID.class)) {
             mockedStatic.when(UUID::randomUUID).thenReturn(randomUUID);
 
-            ExchangeConversion result = fxApiExchangeConversionService.convertAmount(BigDecimal.ONE, "EUR", "USD");
+            final ExchangeConversion result = fxApiExchangeConversionService.convertAmount(BigDecimal.ONE, "EUR", targetCurrency);
 
             assertEquals(randomUUID, result.id());
         }

@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +28,18 @@ public class FXApiExchangeRateService implements ExchangeRateService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("apiKey", apiKey);
 
-        restTemplate.exchange(apiUrl, HttpMethod.GET, new HttpEntity<Void>(headers), FXApiExchangeRateResponse.class);
+        String url = UriComponentsBuilder.fromHttpUrl(apiUrl + "/latest")
+                .queryParam("base_currency", sourceCurrency)
+                .queryParam("currencies", targetCurrency)
+                .build()
+                .toUriString();
+
+        restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                new HttpEntity<Void>(headers),
+                FXApiExchangeRateResponse.class
+        );
 
         return null;
     }

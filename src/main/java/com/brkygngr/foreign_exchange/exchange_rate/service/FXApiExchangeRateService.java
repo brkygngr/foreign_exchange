@@ -1,5 +1,6 @@
 package com.brkygngr.foreign_exchange.exchange_rate.service;
 
+import com.brkygngr.foreign_exchange.exception.FXApiException;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.ExchangeRate;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiExchangeRateResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,12 +35,18 @@ public class FXApiExchangeRateService implements ExchangeRateService {
                 .build()
                 .toUriString();
 
-        restTemplate.exchange(
+        ResponseEntity<FXApiExchangeRateResponse> responseEntity = restTemplate.exchange(
                 url,
                 HttpMethod.GET,
                 new HttpEntity<Void>(headers),
                 FXApiExchangeRateResponse.class
         );
+
+        FXApiExchangeRateResponse fxApiExchangeRateResponse = responseEntity.getBody();
+
+        if (fxApiExchangeRateResponse == null) {
+            throw new FXApiException(String.format("For source %s and target %s currency API responded with null!", sourceCurrency, targetCurrency));
+        }
 
         return null;
     }

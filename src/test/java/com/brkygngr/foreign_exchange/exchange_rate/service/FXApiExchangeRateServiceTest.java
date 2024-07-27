@@ -1,5 +1,6 @@
 package com.brkygngr.foreign_exchange.exchange_rate.service;
 
+import com.brkygngr.foreign_exchange.exception.FXApiException;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.ExchangeRate;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiCurrencyRate;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiExchangeRateResponse;
@@ -21,6 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -79,5 +81,17 @@ class FXApiExchangeRateServiceTest {
         HttpHeaders headers = httpEntity.getHeaders();
 
         assertEquals(headers.getFirst("apiKey"), API_KEY);
+    }
+
+    @Test
+    void getLatestExchangeRateBetween_whenResponseBodyIsNull_thenThrowsAnException() {
+        final String sourceCurrency = "USD";
+        final String targetCurrency = "EUR";
+
+        Mockito.when(restTemplate.exchange(anyString(), any(), any(), eq(FXApiExchangeRateResponse.class))).thenReturn(ResponseEntity.ok(null));
+
+        Exception exception = assertThrows(FXApiException.class, () -> fxApiExchangeRateService.getLatestExchangeRateBetween(sourceCurrency, targetCurrency));
+
+        assertEquals(String.format("For source %s and target %s currency API responded with null!", sourceCurrency, targetCurrency), exception.getMessage());
     }
 }

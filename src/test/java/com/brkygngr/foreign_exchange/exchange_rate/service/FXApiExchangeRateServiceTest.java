@@ -1,48 +1,32 @@
 package com.brkygngr.foreign_exchange.exchange_rate.service;
 
+import com.brkygngr.foreign_exchange.exception.InvalidCurrencyException;
 import com.brkygngr.foreign_exchange.exception.ResponseNullException;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.ExchangeRate;
-import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiCurrencyRate;
-import com.brkygngr.foreign_exchange.exchange_rate.dto.external.FXApiExchangeRateResponse;
+import com.brkygngr.foreign_exchange.fx_api.FXApiAccessor;
+import com.brkygngr.foreign_exchange.fx_api.dto.FXApiCurrencyRate;
+import com.brkygngr.foreign_exchange.fx_api.dto.FXApiExchangeRateResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 class FXApiExchangeRateServiceTest {
 
-    private static final String API_URL = "http://test.url.com";
-
-    private static final String EXCHANGE_RATE_URL = API_URL + "/latest";
-
-    private static final String API_KEY = "test.key";
-
     private AutoCloseable autoCloseable;
 
-    @Captor
-    private ArgumentCaptor<HttpEntity<Void>> httpEntityArgumentCaptor;
-
     @Mock
-    private RestTemplate restTemplate;
+    private FXApiAccessor fxApiAccessor;
 
     private FXApiExchangeRateService fxApiExchangeRateService;
 
@@ -50,7 +34,7 @@ class FXApiExchangeRateServiceTest {
     void setUp() {
         autoCloseable = MockitoAnnotations.openMocks(this);
 
-        fxApiExchangeRateService = new FXApiExchangeRateService(API_URL, API_KEY, restTemplate);
+        fxApiExchangeRateService = new FXApiExchangeRateService(fxApiAccessor);
     }
 
     @AfterEach
@@ -59,66 +43,14 @@ class FXApiExchangeRateServiceTest {
     }
 
     @Test
-    void getLatestExchangeRateBetween_callsRestTemplateWithGivenUrl() {
-        final String sourceCurrency = "USD";
-        final String targetCurrency = "EUR";
-        final String url = EXCHANGE_RATE_URL + "?base_currency=" + sourceCurrency + "&currencies=" + targetCurrency;
-
-        final FXApiCurrencyRate currencyRate = new FXApiCurrencyRate(targetCurrency, BigDecimal.valueOf(10));
-
-        final FXApiExchangeRateResponse exchangeRateResponse = new FXApiExchangeRateResponse(
-                null,
-                Map.of(targetCurrency, currencyRate)
-        );
-
-        final ResponseEntity<FXApiExchangeRateResponse> responseEntity = ResponseEntity.ok(exchangeRateResponse);
-
-        Mockito.when(restTemplate.exchange(anyString(), any(), any(), eq(FXApiExchangeRateResponse.class)))
-               .thenReturn(responseEntity);
-
-        fxApiExchangeRateService.getLatestExchangeRateBetween(sourceCurrency, targetCurrency);
-
-        verify(restTemplate, times(1)).exchange(eq(url), any(), any(), eq(FXApiExchangeRateResponse.class));
-    }
-
-    @Test
-    void getLatestExchangeRateBetween_callsRestTemplateWithHeaderApiKey() {
-        final String targetCurrency = "EUR";
-
-        final FXApiCurrencyRate currencyRate = new FXApiCurrencyRate(targetCurrency, BigDecimal.valueOf(10));
-
-        final FXApiExchangeRateResponse exchangeRateResponse = new FXApiExchangeRateResponse(null,
-                                                                                             Map.of(targetCurrency,
-                                                                                                    currencyRate));
-
-        final ResponseEntity<FXApiExchangeRateResponse> responseEntity = ResponseEntity.ok(exchangeRateResponse);
-
-        Mockito.when(restTemplate.exchange(anyString(), any(), any(), eq(FXApiExchangeRateResponse.class)))
-               .thenReturn(responseEntity);
-
-        fxApiExchangeRateService.getLatestExchangeRateBetween("USD", targetCurrency);
-
-        verify(restTemplate, times(1)).exchange(anyString(),
-                                                any(),
-                                                httpEntityArgumentCaptor.capture(),
-                                                eq(FXApiExchangeRateResponse.class));
-
-        HttpEntity<Void> httpEntity = httpEntityArgumentCaptor.getValue();
-
-        HttpHeaders headers = httpEntity.getHeaders();
-
-        assertEquals(headers.getFirst("apiKey"), API_KEY);
-    }
-
-    @Test
-    void getLatestExchangeRateBetween_whenResponseBodyIsNull_thenThrowsAnException() {
+    void getLatestExchangeRateBetween_whenResponseBodyIsNull_thenThrowsAnResponseNullException() {
         final String sourceCurrency = "USD";
         final String targetCurrency = "EUR";
 
-        Mockito.when(restTemplate.exchange(anyString(), any(), any(), eq(FXApiExchangeRateResponse.class)))
-               .thenReturn(ResponseEntity.ok(null));
+        Mockito.when(fxApiAccessor.getLatestExchangeRateBetween(anyString(), anyString()))
+               .thenReturn(Optional.empty());
 
-        Exception exception = assertThrows(ResponseNullException.class,
+        final Exception exception = assertThrows(ResponseNullException.class,
                                            () -> fxApiExchangeRateService.getLatestExchangeRateBetween(sourceCurrency,
                                                                                                        targetCurrency));
 
@@ -128,22 +60,33 @@ class FXApiExchangeRateServiceTest {
     }
 
     @Test
+    void getLatestExchangeRateBetween_whenFXApiThrowsInvalidCurrencyException_thenThrowsAnInvalidCurrencyException() {
+        final String sourceCurrency = "USD";
+        final String targetCurrency = "EUR";
+
+        Mockito.when(fxApiAccessor.getLatestExchangeRateBetween(anyString(), anyString()))
+               .thenThrow(InvalidCurrencyException.withDefaultMessage());
+
+        final Exception exception = assertThrows(InvalidCurrencyException.class,
+                                           () -> fxApiExchangeRateService.getLatestExchangeRateBetween(sourceCurrency,
+                                                                                                       targetCurrency));
+
+        assertEquals(InvalidCurrencyException.DEFAULT_MESSAGE, exception.getMessage());
+    }
+
+    @Test
     void getLatestExchangeRateBetween_returnsUSDToEURExchangeRate() {
         final String sourceCurrency = "USD";
         final String targetCurrency = "EUR";
         final BigDecimal value = new BigDecimal(10);
 
-        final FXApiCurrencyRate fxApiCurrencyRate = new FXApiCurrencyRate(targetCurrency, value);
-
         final FXApiExchangeRateResponse exchangeRateResponse = new FXApiExchangeRateResponse(
                 null,
-                Map.of(targetCurrency, fxApiCurrencyRate)
+                Map.of(targetCurrency, new FXApiCurrencyRate(targetCurrency, value))
         );
 
-        final ResponseEntity<FXApiExchangeRateResponse> responseEntity = ResponseEntity.ok(exchangeRateResponse);
-
-        Mockito.when(restTemplate.exchange(anyString(), any(), any(), eq(FXApiExchangeRateResponse.class)))
-               .thenReturn(responseEntity);
+        Mockito.when(fxApiAccessor.getLatestExchangeRateBetween(anyString(), anyString()))
+               .thenReturn(Optional.of(exchangeRateResponse));
 
         final ExchangeRate result = fxApiExchangeRateService.getLatestExchangeRateBetween(sourceCurrency,
                                                                                           targetCurrency);

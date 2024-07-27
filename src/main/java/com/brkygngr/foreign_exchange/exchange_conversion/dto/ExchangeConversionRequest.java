@@ -7,18 +7,21 @@ import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
 
-public record ExchangeConversionRequest(@NotNull(message = "Amount is required!")
-                                        @Positive(message = "Amount must be positive!")
+import com.brkygngr.foreign_exchange.exception.ValidationErrorMessages;
+
+public record ExchangeConversionRequest(@NotNull(message = ValidationErrorMessages.CONVERSION_AMOUNT_REQUIRED)
+                                        @Positive(message = ValidationErrorMessages.CONVERSION_AMOUNT_POSITIVE)
                                         BigDecimal amount,
-                                        @NotBlank(message = "Source currency is required!")
-                                        @Size(message = "Source currency must be a three letter currency code!",
-                                              min = 3,
-                                              max = 3)
+                                        @NotBlank(message = ValidationErrorMessages.SOURCE_CURRENCY_REQUIRED)
+                                        @Size(min = 3,
+                                              max = 3,
+                                              message = ValidationErrorMessages.SOURCE_CURRENCY_LENGTH)
                                         String sourceCurrency,
-                                        @NotBlank(message = "Target currency is required!")
-                                        @Size(message = "Target currency must be a three letter currency code!",
-                                              min = 3,
-                                              max = 3)
+                                        @NotBlank(message = ValidationErrorMessages.TARGET_CURRENCY_REQUIRED)
+                                        @Size(min = 3,
+                                              max = 3,
+                                              message = ValidationErrorMessages.TARGET_CURRENCY_LENGTH
+                                        )
                                         String targetCurrency) {
 
 }

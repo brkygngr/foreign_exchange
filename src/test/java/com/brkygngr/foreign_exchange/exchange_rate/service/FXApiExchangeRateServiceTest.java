@@ -65,6 +65,16 @@ class FXApiExchangeRateServiceTest {
         final String targetCurrency = "EUR";
         final String url = EXCHANGE_RATE_URL + "?base_currency=" + sourceCurrency + "&currencies=" + targetCurrency;
 
+        final FXApiCurrencyRate currencyRate = new FXApiCurrencyRate();
+        currencyRate.setCode(targetCurrency);
+        currencyRate.setValue(BigDecimal.valueOf(10));
+
+        final FXApiExchangeRateResponse exchangeRateResponse = new FXApiExchangeRateResponse(null, Map.of(targetCurrency, currencyRate));
+
+        final ResponseEntity<FXApiExchangeRateResponse> responseEntity = ResponseEntity.ok(exchangeRateResponse);
+
+        Mockito.when(restTemplate.exchange(anyString(), any(), any(), eq(FXApiExchangeRateResponse.class))).thenReturn(responseEntity);
+
         fxApiExchangeRateService.getLatestExchangeRateBetween(sourceCurrency, targetCurrency);
 
         verify(restTemplate, times(1)).exchange(eq(url), any(), any(), eq(FXApiExchangeRateResponse.class));
@@ -72,7 +82,19 @@ class FXApiExchangeRateServiceTest {
 
     @Test
     void getLatestExchangeRateBetween_callsRestTemplateWithHeaderApiKey() {
-        fxApiExchangeRateService.getLatestExchangeRateBetween("USD", "EUR");
+        final String targetCurrency = "EUR";
+
+        final FXApiCurrencyRate currencyRate = new FXApiCurrencyRate();
+        currencyRate.setCode(targetCurrency);
+        currencyRate.setValue(BigDecimal.valueOf(10));
+
+        final FXApiExchangeRateResponse exchangeRateResponse = new FXApiExchangeRateResponse(null, Map.of(targetCurrency, currencyRate));
+
+        final ResponseEntity<FXApiExchangeRateResponse> responseEntity = ResponseEntity.ok(exchangeRateResponse);
+
+        Mockito.when(restTemplate.exchange(anyString(), any(), any(), eq(FXApiExchangeRateResponse.class))).thenReturn(responseEntity);
+
+        fxApiExchangeRateService.getLatestExchangeRateBetween("USD", targetCurrency);
 
         verify(restTemplate, times(1)).exchange(anyString(), any(), httpEntityArgumentCaptor.capture(), eq(FXApiExchangeRateResponse.class));
 

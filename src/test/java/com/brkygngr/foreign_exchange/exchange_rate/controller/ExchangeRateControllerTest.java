@@ -107,4 +107,24 @@ class ExchangeRateControllerTest {
                    .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value("Target currency must be a three letter source currency code!"));
         }
     }
+
+    @Test
+    void getExchangeRateBetween_returnsUSDToEURExchangeRate() throws Exception {
+        final String sourceCurrency = "USD";
+        final String targetCurrency = "EUR";
+
+        ExchangeRate exchangeRate = new ExchangeRate(sourceCurrency, targetCurrency, BigDecimal.ONE);
+
+        Mockito.when(exchangeRateService.getLatestExchangeRateBetween("USD", "EUR")).thenReturn(exchangeRate);
+
+        mockMvc.perform(MockMvcRequestBuilders
+                                .get("/api/v1/exchange-rate")
+                                .queryParam("sourceCurrency", "USD")
+                                .queryParam("targetCurrency", "EUR")
+                                .accept(MediaType.APPLICATION_JSON))
+               .andExpect(status().isOk())
+               .andExpect(MockMvcResultMatchers.jsonPath("$.sourceCurrency").value(exchangeRate.sourceCurrency()))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.targetCurrency").value(exchangeRate.targetCurrency()))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.value").value(exchangeRate.value()));
+    }
 }

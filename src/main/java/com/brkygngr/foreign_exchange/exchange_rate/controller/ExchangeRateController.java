@@ -21,7 +21,10 @@ public class ExchangeRateController {
 
     @GetMapping("/exchange-rate")
     @Operation(summary = "Returns exchange rate from source to target currency")
-    public ResponseEntity<ExchangeRate> getExchangeRateBetween(@ParameterObject @Valid ExchangeRateQuery exchangeRateQuery) {
-        return null;
+    public ResponseEntity<ExchangeRate> getExchangeRateBetween(@ParameterObject
+                                                               @Valid
+                                                               ExchangeRateQuery exchangeRateQuery) {
+        return ResponseEntity.ok(exchangeRateService.getLatestExchangeRateBetween(exchangeRateQuery.sourceCurrency(),
+                                                                                  exchangeRateQuery.targetCurrency()));
     }
 }

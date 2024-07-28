@@ -2,9 +2,9 @@ package com.brkygngr.foreign_exchange.exchange_conversion.dto;
 
 import com.brkygngr.foreign_exchange.validation.FirstGroup;
 import com.brkygngr.foreign_exchange.validation.SecondGroup;
+import com.brkygngr.foreign_exchange.validation.CurrencyNotBlank;
 import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
@@ -13,21 +13,24 @@ import java.math.BigDecimal;
 
 import com.brkygngr.foreign_exchange.exception.ValidationErrorMessages;
 
+import static com.brkygngr.foreign_exchange.exception.ErrorCodes.SOURCE_CURRENCY_BLANK_ERROR_CODE;
+import static com.brkygngr.foreign_exchange.exception.ErrorCodes.TARGET_CURRENCY_BLANK_ERROR_CODE;
+import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.SOURCE_CURRENCY_REQUIRED;
+import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.TARGET_CURRENCY_REQUIRED;
+
 @GroupSequence({ExchangeConversionRequest.class, FirstGroup.class, SecondGroup.class})
 public record ExchangeConversionRequest(@NotNull(message = ValidationErrorMessages.CONVERSION_AMOUNT_REQUIRED,
                                                  groups = FirstGroup.class)
                                         @Positive(message = ValidationErrorMessages.CONVERSION_AMOUNT_POSITIVE,
                                                   groups = FirstGroup.class)
                                         BigDecimal amount,
-                                        @NotBlank(message = ValidationErrorMessages.SOURCE_CURRENCY_REQUIRED,
-                                                  groups = FirstGroup.class)
+                                        @CurrencyNotBlank(message = SOURCE_CURRENCY_REQUIRED, errorCode = SOURCE_CURRENCY_BLANK_ERROR_CODE, groups = FirstGroup.class)
                                         @Size(min = 3,
                                               max = 3,
                                               message = ValidationErrorMessages.SOURCE_CURRENCY_LENGTH,
                                               groups = FirstGroup.class)
                                         String sourceCurrency,
-                                        @NotBlank(message = ValidationErrorMessages.TARGET_CURRENCY_REQUIRED,
-                                                  groups = FirstGroup.class)
+                                        @CurrencyNotBlank(message = TARGET_CURRENCY_REQUIRED, errorCode = TARGET_CURRENCY_BLANK_ERROR_CODE, groups = FirstGroup.class)
                                         @Size(min = 3,
                                               max = 3,
                                               message = ValidationErrorMessages.TARGET_CURRENCY_LENGTH,

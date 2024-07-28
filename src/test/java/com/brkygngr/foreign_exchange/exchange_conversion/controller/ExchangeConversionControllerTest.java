@@ -397,7 +397,7 @@ class ExchangeConversionControllerTest {
 
         @Test
         void returnsConvertedAmount() throws Exception {
-            ExchangeConversion expected = new ExchangeConversion(UUID.randomUUID(), BigDecimal.TEN);
+            ExchangeConversion expected = new ExchangeConversion(UUID.randomUUID(), BigDecimal.TEN, "USD", "EUR");
 
             when(exchangeConversionService.convertAmount(any(BigDecimal.class), anyString(), anyString())).thenReturn(
                     expected);
@@ -460,9 +460,13 @@ class ExchangeConversionControllerTest {
 
         @Test
         void whenHistoryExists_returnsPaginatedHistoryResponse() throws Exception {
-            final Page<ExchangeConversion> exchangeConversionPage = new PageImpl<>(List.of(new ExchangeConversion(
+            List<ExchangeConversion> exchangeConversionList = List.of(new ExchangeConversion(
                     UUID.randomUUID(),
-                    BigDecimal.TEN)));
+                    BigDecimal.TEN,
+                    "EUR",
+                    "USD"));
+
+            final Page<ExchangeConversion> exchangeConversionPage = new PageImpl<>(exchangeConversionList);
 
             when(conversionHistoryService.getHistoryByQuery(any(ConversionHistoryQuery.class),
                                                             any(Pageable.class))).thenReturn(exchangeConversionPage);

@@ -2,26 +2,25 @@ package com.brkygngr.foreign_exchange.exchange_conversion.dto;
 
 import com.brkygngr.foreign_exchange.validation.ConversionAmountNotNull;
 import com.brkygngr.foreign_exchange.validation.ConversionAmountPositive;
+import com.brkygngr.foreign_exchange.validation.CurrenciesNotEqual;
 import com.brkygngr.foreign_exchange.validation.CurrencyCode;
 import com.brkygngr.foreign_exchange.validation.FirstGroup;
 import com.brkygngr.foreign_exchange.validation.SecondGroup;
 import com.brkygngr.foreign_exchange.validation.CurrencyNotBlank;
 import jakarta.validation.GroupSequence;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
-import com.brkygngr.foreign_exchange.exception.ValidationErrorMessages;
-
 import static com.brkygngr.foreign_exchange.exception.ErrorCodes.CONVERSION_AMOUNT_NEGATIVE_OR_ZERO_ERROR_CODE;
 import static com.brkygngr.foreign_exchange.exception.ErrorCodes.CONVERSION_AMOUNT_NULL_ERROR_CODE;
+import static com.brkygngr.foreign_exchange.exception.ErrorCodes.SOURCE_AND_TARGET_CURRENCIES_EQUAL_ERROR_CODE;
 import static com.brkygngr.foreign_exchange.exception.ErrorCodes.SOURCE_CURRENCY_BLANK_ERROR_CODE;
 import static com.brkygngr.foreign_exchange.exception.ErrorCodes.SOURCE_CURRENCY_CODE_ERROR_CODE;
 import static com.brkygngr.foreign_exchange.exception.ErrorCodes.TARGET_CURRENCY_BLANK_ERROR_CODE;
 import static com.brkygngr.foreign_exchange.exception.ErrorCodes.TARGET_CURRENCY_CODE_ERROR_CODE;
 import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.CONVERSION_AMOUNT_POSITIVE;
 import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.CONVERSION_AMOUNT_REQUIRED;
+import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.SOURCE_AND_TARGET_MUST_BE_DIFFERENT;
 import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.SOURCE_CURRENCY_CODE;
 import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.SOURCE_CURRENCY_REQUIRED;
 import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.TARGET_CURRENCY_CODE;
@@ -32,8 +31,6 @@ public record ExchangeConversionRequest(@ConversionAmountNotNull(message = CONVE
                                                                  errorCode = CONVERSION_AMOUNT_NULL_ERROR_CODE)
                                         @ConversionAmountPositive(message = CONVERSION_AMOUNT_POSITIVE,
                                                                   errorCode = CONVERSION_AMOUNT_NEGATIVE_OR_ZERO_ERROR_CODE)
-                                        @Positive(message = ValidationErrorMessages.CONVERSION_AMOUNT_POSITIVE,
-                                                  groups = FirstGroup.class)
                                         BigDecimal amount,
                                         @CurrencyNotBlank(message = SOURCE_CURRENCY_REQUIRED,
                                                           errorCode = SOURCE_CURRENCY_BLANK_ERROR_CODE,
@@ -50,7 +47,9 @@ public record ExchangeConversionRequest(@ConversionAmountNotNull(message = CONVE
                                                       groups = FirstGroup.class)
                                         String targetCurrency) {
 
-    @AssertTrue(message = ValidationErrorMessages.SOURCE_AND_TARGET_MUST_BE_DIFFERENT, groups = SecondGroup.class)
+    @CurrenciesNotEqual(message = SOURCE_AND_TARGET_MUST_BE_DIFFERENT,
+                        errorCode = SOURCE_AND_TARGET_CURRENCIES_EQUAL_ERROR_CODE,
+                        groups = SecondGroup.class)
     private boolean isSourceAndTargetDifferent() {
         return !sourceCurrency.equals(targetCurrency);
     }

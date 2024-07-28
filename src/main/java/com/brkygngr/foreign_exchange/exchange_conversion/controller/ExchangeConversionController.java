@@ -34,60 +34,53 @@ public class ExchangeConversionController {
 
     @PostMapping
     @Operation(summary = "Converts given amount from source to target currency")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Successful response",
-                         content = @Content(
-                                 mediaType = "application/json",
-                                 schema = @Schema(implementation = ExchangeConversion.class)),
-                         headers = @Header(name = "Location",
-                                           description = "URL of the created conversion transaction")),
-            @ApiResponse(responseCode = "400", description = "Validation errors",
-                         content = @Content(
-                                 mediaType = "application/json",
-                                 schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "422", description = "Currency invalid errors",
-                         content = @Content(
-                                 mediaType = "application/json",
-                                 schema = @Schema(implementation = ErrorResponse.class)))
-    })
+    @ApiResponses(value = {@ApiResponse(responseCode = "201",
+                                        description = "Successful response",
+                                        content = @Content(mediaType = "application/json",
+                                                           schema = @Schema(implementation = ExchangeConversion.class)),
+                                        headers = @Header(name = "Location",
+                                                          description = "URL of the created conversion transaction")),
+                           @ApiResponse(responseCode = "400",
+                                        description = "Validation errors",
+                                        content = @Content(mediaType = "application/json",
+                                                           schema = @Schema(implementation = ErrorResponse.class))),
+                           @ApiResponse(responseCode = "422",
+                                        description = "Currency invalid errors",
+                                        content = @Content(mediaType = "application/json",
+                                                           schema = @Schema(implementation = ErrorResponse.class)))})
     public ResponseEntity<ExchangeConversion> postConversion(
             @RequestBody @Valid ExchangeConversionRequest exchangeConversionRequest) {
 
-        ExchangeConversion exchangeConversion = exchangeConversionService.convertAmount(
-                exchangeConversionRequest.amount(),
-                exchangeConversionRequest.sourceCurrency(),
-                exchangeConversionRequest.targetCurrency());
+        ExchangeConversion exchangeConversion = exchangeConversionService.convertAmount(exchangeConversionRequest.amount(),
+                                                                                        exchangeConversionRequest.sourceCurrency(),
+                                                                                        exchangeConversionRequest.targetCurrency());
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                                                   .path("/{id}")
                                                   .buildAndExpand(exchangeConversion.id())
                                                   .toUri();
 
-        return ResponseEntity.created(location)
-                             .body(exchangeConversion);
+        return ResponseEntity.created(location).body(exchangeConversion);
     }
 
     @GetMapping("/history")
     @Operation(summary = "Returns conversion history(es) by id or given date")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Successful response",
-                         content = @Content(
-                                 mediaType = "application/json",
-                                 schema = @Schema(implementation = ExchangeConversion[].class)),
-                         headers = @Header(name = "Location",
-                                           description = "URL of the created conversion transaction")),
-            @ApiResponse(responseCode = "400", description = "Validation errors",
-                         content = @Content(
-                                 mediaType = "application/json",
-                                 schema = @Schema(implementation = ErrorResponse.class))),
-            @ApiResponse(responseCode = "422", description = "Currency invalid errors",
-                         content = @Content(
-                                 mediaType = "application/json",
-                                 schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    public ResponseEntity<List<ExchangeConversion>> getConversionHistory(@ParameterObject
-                                                                         @Valid
-                                                                         ConversionHistoryQuery conversionHistoryQuery) {
+    @ApiResponses(value = {@ApiResponse(responseCode = "200",
+                                        description = "Successful response",
+                                        content = @Content(mediaType = "application/json",
+                                                           schema = @Schema(implementation = ExchangeConversion[].class)),
+                                        headers = @Header(name = "Location",
+                                                          description = "URL of the created conversion transaction")),
+                           @ApiResponse(responseCode = "400",
+                                        description = "Validation errors",
+                                        content = @Content(mediaType = "application/json",
+                                                           schema = @Schema(implementation = ErrorResponse.class))),
+                           @ApiResponse(responseCode = "422",
+                                        description = "Currency invalid errors",
+                                        content = @Content(mediaType = "application/json",
+                                                           schema = @Schema(implementation = ErrorResponse.class)))})
+    public ResponseEntity<List<ExchangeConversion>> getConversionHistory(
+            @ParameterObject @Valid ConversionHistoryQuery conversionHistoryQuery) {
         return null;
     }
 }

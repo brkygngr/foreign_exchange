@@ -13,4 +13,6 @@ public interface ConversionRepository extends JpaRepository<Conversion, UUID> {
     Page<Conversion> findAllById(UUID id, Pageable pageable);
 
     Page<Conversion> findAllByCreatedAtBetween(Instant start, Instant end, Pageable pageable);
+
+    Page<Conversion> findAllByIdAndCreatedAtBetween(UUID id, Instant start, Instant end, Pageable pageable);
 }

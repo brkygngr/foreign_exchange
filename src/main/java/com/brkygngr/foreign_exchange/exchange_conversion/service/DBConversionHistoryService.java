@@ -6,15 +6,15 @@ import com.brkygngr.foreign_exchange.exchange_conversion.model.Conversion;
 import com.brkygngr.foreign_exchange.exchange_conversion.repository.ConversionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.List;
+import java.time.temporal.ChronoUnit;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,21 +24,25 @@ public class DBConversionHistoryService implements ConversionHistoryService {
 
     public Page<ExchangeConversion> getHistoryByQuery(final ConversionHistoryQuery conversionHistoryQuery,
                                                       final Pageable pageable) {
-        Page<Conversion> conversionPage = new PageImpl<>(List.of());
+        Optional<UUID> optionalID = conversionHistoryQuery.transactionID();
+        Optional<LocalDate> optionalDate = conversionHistoryQuery.transactionDate();
+        Page<Conversion> conversionPage = Page.empty(pageable);
 
-        if (conversionHistoryQuery.transactionID().isPresent()) {
-            conversionPage = conversionRepository.findAllById(conversionHistoryQuery.transactionID().get(),
-                                                              pageable);
-        }
+        if (optionalID.isPresent() && optionalDate.isPresent()) {
+            Instant start = optionalDate.get().atStartOfDay(ZoneId.of("UTC")).toInstant();
+            Instant end = start.plus(1, ChronoUnit.DAYS);
 
-        if (conversionHistoryQuery.transactionDate().isPresent()) {
-            LocalDate date = conversionHistoryQuery.transactionDate().get();
-            Instant start = date.atStartOfDay(ZoneId.of("UTC")).toInstant();
-            Instant end = date.plusDays(1).atStartOfDay(ZoneId.of("UTC")).toInstant();
+            conversionPage = conversionRepository.findAllByIdAndCreatedAtBetween(optionalID.get(),
+                                                                                 start,
+                                                                                 end,
+                                                                                 pageable);
+        } else if (optionalID.isPresent()) {
+            conversionPage = conversionRepository.findAllById(optionalID.get(), pageable);
+        } else if (optionalDate.isPresent()) {
+            Instant start = optionalDate.get().atStartOfDay(ZoneId.of("UTC")).toInstant();
+            Instant end = start.plus(1, ChronoUnit.DAYS);
 
-            conversionPage = conversionRepository.findAllByCreatedAtBetween(start,
-                                                                            end,
-                                                                            pageable);
+            conversionPage = conversionRepository.findAllByCreatedAtBetween(start, end, pageable);
         }
 
         return conversionPage.map(ExchangeConversion::fromConversion);

@@ -77,12 +77,12 @@ class DBConversionHistoryServiceTest {
     void getHistoryByQuery_whenTransactionDateMatches_returnsExistingElement() {
         final UUID id = UUID.randomUUID();
 
-        final Conversion mockExchangeConversion = new Conversion();
-        mockExchangeConversion.setId(id);
-        mockExchangeConversion.setAmount(BigDecimal.ONE);
-        mockExchangeConversion.setExchangeRate(BigDecimal.ONE);
+        final Conversion conversion = new Conversion();
+        conversion.setId(id);
+        conversion.setAmount(BigDecimal.ONE);
+        conversion.setExchangeRate(BigDecimal.ONE);
 
-        final Page<Conversion> mockPage = new PageImpl<>(List.of(mockExchangeConversion));
+        final Page<Conversion> mockPage = new PageImpl<>(List.of(conversion));
 
         when(conversionRepository.findAllByCreatedAtBetween(eq(Instant.parse("2024-01-01T00:00:00Z")),
                                                             eq(Instant.parse("2024-01-02T00:00:00Z")),
@@ -99,8 +99,38 @@ class DBConversionHistoryServiceTest {
                 mockPage.getPageable());
 
         assertEquals(1, exchangeConversionPage.getTotalElements());
-        assertEquals(mockExchangeConversion.getId(), exchangeConversionPage.getContent().getFirst().id());
-        assertEquals(mockExchangeConversion.convertedAmount(),
-                     exchangeConversionPage.getContent().getFirst().convertedAmount());
+        assertEquals(conversion.getId(), exchangeConversionPage.getContent().getFirst().id());
+        assertEquals(conversion.convertedAmount(), exchangeConversionPage.getContent().getFirst().convertedAmount());
+    }
+
+    @Test
+    void getHistoryByQuery_whenTransactionIDAndTransactionDateMatches_returnsExistingElement() {
+        final UUID id = UUID.randomUUID();
+
+        final Conversion conversion = new Conversion();
+        conversion.setId(id);
+        conversion.setAmount(BigDecimal.ONE);
+        conversion.setExchangeRate(BigDecimal.ONE);
+
+        final Page<Conversion> mockPage = new PageImpl<>(List.of(conversion));
+
+        when(conversionRepository.findAllByIdAndCreatedAtBetween(eq(conversion.getId()),
+                                                                 eq(Instant.parse("2024-01-01T00:00:00Z")),
+                                                                 eq(Instant.parse("2024-01-02T00:00:00Z")),
+                                                                 any(Pageable.class))).thenReturn(mockPage);
+
+        final ConversionHistoryQuery conversionHistoryQuery = new ConversionHistoryQuery(Optional.of(conversion.getId()),
+                                                                                         Optional.of(LocalDate.of(2024,
+                                                                                                                  1,
+                                                                                                                  1)));
+
+
+        final Page<ExchangeConversion> exchangeConversionPage = dbConversionHistoryService.getHistoryByQuery(
+                conversionHistoryQuery,
+                mockPage.getPageable());
+
+        assertEquals(1, exchangeConversionPage.getTotalElements());
+        assertEquals(conversion.getId(), exchangeConversionPage.getContent().getFirst().id());
+        assertEquals(conversion.convertedAmount(), exchangeConversionPage.getContent().getFirst().convertedAmount());
     }
 }

@@ -16,27 +16,32 @@ import java.time.Instant;
 public class GlobalExceptionHandler {
 
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "400", description = "Request validation errors",
+            @ApiResponse(responseCode = "400",
+                         description = "Request validation errors",
                          content = @Content(
                                  mediaType = "application/json",
                                  schema = @Schema(implementation = ErrorResponse.class)))
     })
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleBadRequest(MethodArgumentNotValidException exception) {
-        String[] errors = exception.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).toArray(String[]::new);
+        String[] errors = exception.getAllErrors()
+                                   .stream()
+                                   .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                                   .toArray(String[]::new);
 
         return ResponseEntity.badRequest().body(new ErrorResponse(Instant.now(), errors));
     }
 
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "422", description = "Currency invalid errors",
+            @ApiResponse(responseCode = "422",
+                         description = "Currency invalid errors",
                          content = @Content(
                                  mediaType = "application/json",
                                  schema = @Schema(implementation = ErrorResponse.class)))
     })
     @ExceptionHandler({InvalidCurrencyException.class, ResponseNullException.class})
     public ResponseEntity<ErrorResponse> handleUnprocessableEntity(InvalidCurrencyException exception) {
-        String[] errors = new String[] {
+        String[] errors = new String[]{
                 exception.getMessage()
         };
 

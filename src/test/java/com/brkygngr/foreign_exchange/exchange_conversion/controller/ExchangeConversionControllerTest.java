@@ -52,7 +52,7 @@ class ExchangeConversionControllerTest {
             final ExchangeConversionRequest request = new ExchangeConversionRequest(null, "EUR", "USD");
 
             mockMvc.perform(MockMvcRequestBuilders
-                                    .post("/api/v1/conversion")
+                                    .post("/api/v1/conversions")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
                                     .accept(MediaType.APPLICATION_JSON))
@@ -77,7 +77,7 @@ class ExchangeConversionControllerTest {
                                                                                     "USD");
 
             mockMvc.perform(MockMvcRequestBuilders
-                                    .post("/api/v1/conversion")
+                                    .post("/api/v1/conversions")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
                                     .accept(MediaType.APPLICATION_JSON))
@@ -102,7 +102,7 @@ class ExchangeConversionControllerTest {
                                                                                     "USD");
 
             mockMvc.perform(MockMvcRequestBuilders
-                                    .post("/api/v1/conversion")
+                                    .post("/api/v1/conversions")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
                                     .accept(MediaType.APPLICATION_JSON))
@@ -125,7 +125,7 @@ class ExchangeConversionControllerTest {
             final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, null, "USD");
 
             mockMvc.perform(MockMvcRequestBuilders
-                                    .post("/api/v1/conversion")
+                                    .post("/api/v1/conversions")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
                                     .accept(MediaType.APPLICATION_JSON))
@@ -148,7 +148,7 @@ class ExchangeConversionControllerTest {
             final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "", "USD");
 
             mockMvc.perform(MockMvcRequestBuilders
-                                    .post("/api/v1/conversion")
+                                    .post("/api/v1/conversions")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
                                     .accept(MediaType.APPLICATION_JSON))
@@ -172,7 +172,7 @@ class ExchangeConversionControllerTest {
             final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "EUR", null);
 
             mockMvc.perform(MockMvcRequestBuilders
-                                    .post("/api/v1/conversion")
+                                    .post("/api/v1/conversions")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
                                     .accept(MediaType.APPLICATION_JSON))
@@ -195,7 +195,7 @@ class ExchangeConversionControllerTest {
             final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "EUR", "");
 
             mockMvc.perform(MockMvcRequestBuilders
-                                    .post("/api/v1/conversion")
+                                    .post("/api/v1/conversions")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
                                     .accept(MediaType.APPLICATION_JSON))
@@ -219,7 +219,7 @@ class ExchangeConversionControllerTest {
             final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "ABCDE", "USD");
 
             mockMvc.perform(MockMvcRequestBuilders
-                                    .post("/api/v1/conversion")
+                                    .post("/api/v1/conversions")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
                                     .accept(MediaType.APPLICATION_JSON))
@@ -242,7 +242,7 @@ class ExchangeConversionControllerTest {
             final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "A", "USD");
 
             mockMvc.perform(MockMvcRequestBuilders
-                                    .post("/api/v1/conversion")
+                                    .post("/api/v1/conversions")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
                                     .accept(MediaType.APPLICATION_JSON))
@@ -265,7 +265,7 @@ class ExchangeConversionControllerTest {
             final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "EUR", "ABCDE");
 
             mockMvc.perform(MockMvcRequestBuilders
-                                    .post("/api/v1/conversion")
+                                    .post("/api/v1/conversions")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
                                     .accept(MediaType.APPLICATION_JSON))
@@ -288,7 +288,7 @@ class ExchangeConversionControllerTest {
             final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "USD", "A");
 
             mockMvc.perform(MockMvcRequestBuilders
-                                    .post("/api/v1/conversion")
+                                    .post("/api/v1/conversions")
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .content(objectMapper.writeValueAsString(request))
                                     .accept(MediaType.APPLICATION_JSON))
@@ -309,12 +309,12 @@ class ExchangeConversionControllerTest {
         final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "USD", "EUR");
 
         mockMvc.perform(MockMvcRequestBuilders
-                                .post("/api/v1/conversion")
+                                .post("/api/v1/conversions")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(request))
                                 .accept(MediaType.APPLICATION_JSON))
                .andExpect(status().isCreated())
-                .andExpect(MockMvcResultMatchers.header().string("location", "http://localhost/api/v1/conversion/" + expected.id()))
+                .andExpect(MockMvcResultMatchers.header().string("location", "http://localhost/api/v1/conversions/" + expected.id()))
                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(expected.id().toString()))
                .andExpect(MockMvcResultMatchers.jsonPath("$.convertedAmount").value(expected.convertedAmount()));
     }

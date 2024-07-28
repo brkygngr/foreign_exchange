@@ -21,7 +21,7 @@ public class ExchangeConversionController {
 
     private final ExchangeConversionService exchangeConversionService;
 
-    @PostMapping("/conversion")
+    @PostMapping("/conversions")
     public ResponseEntity<ExchangeConversion> getConversion(
             @RequestBody @Valid ExchangeConversionRequest exchangeConversionRequest) {
 

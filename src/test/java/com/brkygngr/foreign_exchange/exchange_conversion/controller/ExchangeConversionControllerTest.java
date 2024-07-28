@@ -1,12 +1,15 @@
 package com.brkygngr.foreign_exchange.exchange_conversion.controller;
 
 import com.brkygngr.foreign_exchange.exception.ValidationErrorMessages;
+import com.brkygngr.foreign_exchange.exchange_conversion.dto.ExchangeConversion;
 import com.brkygngr.foreign_exchange.exchange_conversion.dto.ExchangeConversionRequest;
+import com.brkygngr.foreign_exchange.exchange_conversion.service.ExchangeConversionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -16,9 +19,13 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ExchangeConversionController.class)
@@ -29,6 +36,9 @@ class ExchangeConversionControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private ExchangeConversionService exchangeConversionService;
 
     @Test
     void getConversion_whenAmountIsNull_returnsBadRequestErrorResponse() throws Exception {
@@ -168,7 +178,8 @@ class ExchangeConversionControllerTest {
                                     .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value(ValidationErrorMessages.TARGET_CURRENCY_REQUIRED));
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                                   .value(ValidationErrorMessages.TARGET_CURRENCY_REQUIRED));
         }
     }
 
@@ -286,5 +297,25 @@ class ExchangeConversionControllerTest {
                    .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
                                                    .value(ValidationErrorMessages.TARGET_CURRENCY_LENGTH));
         }
+    }
+
+    @Test
+    void getConversion_returnsConvertedAmount() throws Exception {
+        ExchangeConversion expected = new ExchangeConversion(UUID.randomUUID(), BigDecimal.TEN);
+
+        when(exchangeConversionService.convertAmount(any(BigDecimal.class), anyString(), anyString())).thenReturn(
+                expected);
+
+        final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "USD", "EUR");
+
+        mockMvc.perform(MockMvcRequestBuilders
+                                .post("/api/v1/conversion")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                                .accept(MediaType.APPLICATION_JSON))
+               .andExpect(status().isCreated())
+                .andExpect(MockMvcResultMatchers.header().string("location", "http://localhost/api/v1/conversion/" + expected.id()))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(expected.id().toString()))
+               .andExpect(MockMvcResultMatchers.jsonPath("$.convertedAmount").value(expected.convertedAmount()));
     }
 }

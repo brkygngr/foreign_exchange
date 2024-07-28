@@ -1,6 +1,6 @@
 package com.brkygngr.foreign_exchange.exchange_conversion.dto;
 
-import com.brkygngr.foreign_exchange.validation.ConversionIDOrDateNotNull;
+import com.brkygngr.foreign_exchange.validation.conversion.ConversionIDOrDateNotNull;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;

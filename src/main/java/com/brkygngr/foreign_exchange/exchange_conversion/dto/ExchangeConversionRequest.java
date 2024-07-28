@@ -1,12 +1,12 @@
 package com.brkygngr.foreign_exchange.exchange_conversion.dto;
 
-import com.brkygngr.foreign_exchange.validation.ConversionAmountNotNull;
-import com.brkygngr.foreign_exchange.validation.ConversionAmountPositive;
-import com.brkygngr.foreign_exchange.validation.CurrenciesNotEqual;
-import com.brkygngr.foreign_exchange.validation.CurrencyCode;
+import com.brkygngr.foreign_exchange.validation.conversion.ConversionAmountNotNull;
+import com.brkygngr.foreign_exchange.validation.conversion.ConversionAmountPositive;
+import com.brkygngr.foreign_exchange.validation.currency.CurrenciesNotEqual;
+import com.brkygngr.foreign_exchange.validation.currency.CurrencyCode;
 import com.brkygngr.foreign_exchange.validation.FirstGroup;
 import com.brkygngr.foreign_exchange.validation.SecondGroup;
-import com.brkygngr.foreign_exchange.validation.CurrencyNotBlank;
+import com.brkygngr.foreign_exchange.validation.currency.CurrencyNotBlank;
 import jakarta.validation.GroupSequence;
 
 import java.math.BigDecimal;

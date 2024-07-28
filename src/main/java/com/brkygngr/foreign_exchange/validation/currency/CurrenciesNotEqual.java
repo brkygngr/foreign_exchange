@@ -1,9 +1,9 @@
-package com.brkygngr.foreign_exchange.validation;
+package com.brkygngr.foreign_exchange.validation.currency;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import jakarta.validation.ReportAsSingleViolation;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.AssertTrue;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -21,9 +21,9 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = {})
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RUNTIME)
-@NotNull(message = "")
+@AssertTrue(message = "")
 @ReportAsSingleViolation
-public @interface ConversionAmountNotNull {
+public @interface CurrenciesNotEqual {
 
     String message();
 

@@ -1,13 +1,11 @@
 package com.brkygngr.foreign_exchange.exchange_rate.dto;
 
-import com.brkygngr.foreign_exchange.exception.ValidationErrorMessages;
-import com.brkygngr.foreign_exchange.validation.CurrenciesNotEqual;
-import com.brkygngr.foreign_exchange.validation.CurrencyCode;
-import com.brkygngr.foreign_exchange.validation.CurrencyNotBlank;
+import com.brkygngr.foreign_exchange.validation.currency.CurrenciesNotEqual;
+import com.brkygngr.foreign_exchange.validation.currency.CurrencyCode;
+import com.brkygngr.foreign_exchange.validation.currency.CurrencyNotBlank;
 import com.brkygngr.foreign_exchange.validation.FirstGroup;
 import com.brkygngr.foreign_exchange.validation.SecondGroup;
 import jakarta.validation.GroupSequence;
-import jakarta.validation.constraints.AssertTrue;
 
 import static com.brkygngr.foreign_exchange.exception.ErrorCodes.SOURCE_AND_TARGET_CURRENCIES_EQUAL_ERROR_CODE;
 import static com.brkygngr.foreign_exchange.exception.ErrorCodes.SOURCE_CURRENCY_BLANK_ERROR_CODE;

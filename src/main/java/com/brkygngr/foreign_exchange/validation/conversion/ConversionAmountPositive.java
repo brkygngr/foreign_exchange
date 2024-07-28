@@ -1,4 +1,4 @@
-package com.brkygngr.foreign_exchange.validation;
+package com.brkygngr.foreign_exchange.validation.conversion;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
@@ -23,7 +23,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 @Positive(message = "")
 @ReportAsSingleViolation
-public @interface ConversionIDOrDateNotNull {
+public @interface ConversionAmountPositive {
 
     String message();
 

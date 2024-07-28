@@ -87,7 +87,7 @@ class ExchangeRateControllerTest {
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
                    .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                   .value(ValidationErrorMessages.SOURCE_CURRENCY_LENGTH));
+                                                   .value(ValidationErrorMessages.SOURCE_CURRENCY_CODE));
         }
     }
 
@@ -108,7 +108,7 @@ class ExchangeRateControllerTest {
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
                    .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                   .value(ValidationErrorMessages.TARGET_CURRENCY_LENGTH));
+                                                   .value(ValidationErrorMessages.TARGET_CURRENCY_CODE));
         }
     }
 

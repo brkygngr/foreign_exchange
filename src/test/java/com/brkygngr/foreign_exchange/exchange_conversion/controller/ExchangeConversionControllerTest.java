@@ -165,7 +165,7 @@ class ExchangeConversionControllerTest {
                        .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
                        .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
                                                        .value(containsInAnyOrder(ValidationErrorMessages.SOURCE_CURRENCY_REQUIRED,
-                                                                                 ValidationErrorMessages.SOURCE_CURRENCY_LENGTH)));
+                                                                                 ValidationErrorMessages.SOURCE_CURRENCY_CODE)));
             }
         }
 
@@ -210,7 +210,7 @@ class ExchangeConversionControllerTest {
                        .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
                        .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
                                                        .value(containsInAnyOrder(ValidationErrorMessages.TARGET_CURRENCY_REQUIRED,
-                                                                                 ValidationErrorMessages.TARGET_CURRENCY_LENGTH)));
+                                                                                 ValidationErrorMessages.TARGET_CURRENCY_CODE)));
             }
         }
 
@@ -232,7 +232,7 @@ class ExchangeConversionControllerTest {
                        .andExpect(status().isBadRequest())
                        .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
                        .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.SOURCE_CURRENCY_LENGTH));
+                                                       .value(ValidationErrorMessages.SOURCE_CURRENCY_CODE));
             }
         }
 
@@ -254,7 +254,7 @@ class ExchangeConversionControllerTest {
                        .andExpect(status().isBadRequest())
                        .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
                        .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.SOURCE_CURRENCY_LENGTH));
+                                                       .value(ValidationErrorMessages.SOURCE_CURRENCY_CODE));
             }
         }
 
@@ -276,7 +276,7 @@ class ExchangeConversionControllerTest {
                        .andExpect(status().isBadRequest())
                        .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
                        .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.TARGET_CURRENCY_LENGTH));
+                                                       .value(ValidationErrorMessages.TARGET_CURRENCY_CODE));
             }
         }
 
@@ -298,7 +298,7 @@ class ExchangeConversionControllerTest {
                        .andExpect(status().isBadRequest())
                        .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
                        .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.TARGET_CURRENCY_LENGTH));
+                                                       .value(ValidationErrorMessages.TARGET_CURRENCY_CODE));
             }
         }
 

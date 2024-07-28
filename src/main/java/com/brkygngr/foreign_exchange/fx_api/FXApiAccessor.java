@@ -2,7 +2,6 @@ package com.brkygngr.foreign_exchange.fx_api;
 
 import com.brkygngr.foreign_exchange.exception.InvalidCurrencyException;
 import com.brkygngr.foreign_exchange.fx_api.dto.FXApiExchangeRateResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -16,20 +15,26 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Optional;
 
-@RequiredArgsConstructor
-@Slf4j
 @Service
+@Slf4j
 public class FXApiAccessor {
 
-    @Value("${app.fx.apiUrl}")
     private final String apiUrl;
 
-    @Value("${app.fx.apiKey}")
     private final String apiKey;
 
     private final RestTemplate restTemplate;
 
-    public Optional<FXApiExchangeRateResponse> getLatestExchangeRateBetween(final String sourceCurrency, final String targetCurrency) throws InvalidCurrencyException {
+    public FXApiAccessor(@Value("${app.fx.apiUrl}") final String apiUrl,
+                         @Value("${app.fx.apiKey}") final String apiKey,
+                         final RestTemplate restTemplate) {
+        this.apiUrl = apiUrl;
+        this.apiKey = apiKey;
+        this.restTemplate = restTemplate;
+    }
+
+    public Optional<FXApiExchangeRateResponse> getLatestExchangeRateBetween(final String sourceCurrency,
+                                                                            final String targetCurrency) throws InvalidCurrencyException {
         String url = UriComponentsBuilder.fromHttpUrl(apiUrl + "/latest")
                                          .queryParam("base_currency", sourceCurrency)
                                          .queryParam("currencies", targetCurrency)

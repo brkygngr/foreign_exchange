@@ -362,7 +362,7 @@ class ExchangeConversionControllerTest {
                        .andExpect(status().isBadRequest())
                        .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
                        .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.CONVERSION_HISTORY_REQUIRED));
+                                                       .value(ValidationErrorMessages.CONVERSION_HISTORY_ID_OR_DATE_REQUIRED));
             }
         }
 

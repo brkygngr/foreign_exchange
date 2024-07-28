@@ -1,6 +1,7 @@
 package com.brkygngr.foreign_exchange.exchange_conversion.controller;
 
-import com.brkygngr.foreign_exchange.exception.ValidationErrorMessages;
+import com.brkygngr.foreign_exchange.exception.AppError;
+import com.brkygngr.foreign_exchange.exception.ErrorResponse;
 import com.brkygngr.foreign_exchange.exchange_conversion.dto.ConversionHistoryQuery;
 import com.brkygngr.foreign_exchange.exchange_conversion.dto.ExchangeConversion;
 import com.brkygngr.foreign_exchange.exchange_conversion.dto.ExchangeConversionRequest;
@@ -30,7 +31,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.containsInAnyOrder;
+import static com.brkygngr.foreign_exchange.exception.ErrorCodes.CONVERSION_AMOUNT_NEGATIVE_OR_ZERO_ERROR_CODE;
+import static com.brkygngr.foreign_exchange.exception.ErrorCodes.CONVERSION_AMOUNT_NULL_ERROR_CODE;
+import static com.brkygngr.foreign_exchange.exception.ErrorCodes.CONVERSION_HISTORY_ID_AND_DATE_NULL_ERROR_CODE;
+import static com.brkygngr.foreign_exchange.exception.ErrorCodes.SOURCE_AND_TARGET_CURRENCIES_EQUAL_ERROR_CODE;
+import static com.brkygngr.foreign_exchange.exception.ErrorCodes.SOURCE_CURRENCY_BLANK_ERROR_CODE;
+import static com.brkygngr.foreign_exchange.exception.ErrorCodes.SOURCE_CURRENCY_CODE_ERROR_CODE;
+import static com.brkygngr.foreign_exchange.exception.ErrorCodes.TARGET_CURRENCY_BLANK_ERROR_CODE;
+import static com.brkygngr.foreign_exchange.exception.ErrorCodes.TARGET_CURRENCY_CODE_ERROR_CODE;
+import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.CONVERSION_AMOUNT_POSITIVE;
+import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.CONVERSION_AMOUNT_REQUIRED;
+import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.CONVERSION_HISTORY_ID_OR_DATE_REQUIRED;
+import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.SOURCE_AND_TARGET_MUST_BE_DIFFERENT;
+import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.SOURCE_CURRENCY_CODE;
+import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.SOURCE_CURRENCY_REQUIRED;
+import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.TARGET_CURRENCY_CODE;
+import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.TARGET_CURRENCY_REQUIRED;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mockStatic;
@@ -60,6 +76,12 @@ class ExchangeConversionControllerTest {
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
 
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(
+                                                                                          CONVERSION_AMOUNT_REQUIRED,
+                                                                                          CONVERSION_AMOUNT_NULL_ERROR_CODE)});
+
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
 
@@ -70,9 +92,8 @@ class ExchangeConversionControllerTest {
                                                       .content(objectMapper.writeValueAsString(request))
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.CONVERSION_AMOUNT_REQUIRED));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .string(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -81,6 +102,12 @@ class ExchangeConversionControllerTest {
             final String timestamp = "2024-01-01T00:00:00Z";
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(
+                                                                                          CONVERSION_AMOUNT_POSITIVE,
+                                                                                          CONVERSION_AMOUNT_NEGATIVE_OR_ZERO_ERROR_CODE)});
 
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
@@ -94,9 +121,8 @@ class ExchangeConversionControllerTest {
                                                       .content(objectMapper.writeValueAsString(request))
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.CONVERSION_AMOUNT_POSITIVE));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .string(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -105,6 +131,12 @@ class ExchangeConversionControllerTest {
             final String timestamp = "2024-01-01T00:00:00Z";
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(
+                                                                                          CONVERSION_AMOUNT_POSITIVE,
+                                                                                          CONVERSION_AMOUNT_NEGATIVE_OR_ZERO_ERROR_CODE)});
 
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
@@ -118,9 +150,8 @@ class ExchangeConversionControllerTest {
                                                       .content(objectMapper.writeValueAsString(request))
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.CONVERSION_AMOUNT_POSITIVE));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .string(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -129,6 +160,11 @@ class ExchangeConversionControllerTest {
             final String timestamp = "2024-01-01T00:00:00Z";
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(SOURCE_CURRENCY_REQUIRED,
+                                                                                               SOURCE_CURRENCY_BLANK_ERROR_CODE)});
 
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
@@ -140,9 +176,8 @@ class ExchangeConversionControllerTest {
                                                       .content(objectMapper.writeValueAsString(request))
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.SOURCE_CURRENCY_REQUIRED));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .string(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -151,6 +186,13 @@ class ExchangeConversionControllerTest {
             final String timestamp = "2024-01-01T00:00:00Z";
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(SOURCE_CURRENCY_REQUIRED,
+                                                                                               SOURCE_CURRENCY_BLANK_ERROR_CODE),
+                                                                                  new AppError(SOURCE_CURRENCY_CODE,
+                                                                                               SOURCE_CURRENCY_CODE_ERROR_CODE)});
 
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
@@ -162,10 +204,8 @@ class ExchangeConversionControllerTest {
                                                       .content(objectMapper.writeValueAsString(request))
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(containsInAnyOrder(ValidationErrorMessages.SOURCE_CURRENCY_REQUIRED,
-                                                                                 ValidationErrorMessages.SOURCE_CURRENCY_CODE)));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .json(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -174,6 +214,11 @@ class ExchangeConversionControllerTest {
             final String timestamp = "2024-01-01T00:00:00Z";
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(TARGET_CURRENCY_REQUIRED,
+                                                                                               TARGET_CURRENCY_BLANK_ERROR_CODE)});
 
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
@@ -185,9 +230,8 @@ class ExchangeConversionControllerTest {
                                                       .content(objectMapper.writeValueAsString(request))
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.TARGET_CURRENCY_REQUIRED));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .string(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -196,6 +240,13 @@ class ExchangeConversionControllerTest {
             final String timestamp = "2024-01-01T00:00:00Z";
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(TARGET_CURRENCY_REQUIRED,
+                                                                                               TARGET_CURRENCY_BLANK_ERROR_CODE),
+                                                                                  new AppError(TARGET_CURRENCY_CODE,
+                                                                                               TARGET_CURRENCY_CODE_ERROR_CODE)});
 
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
@@ -207,10 +258,8 @@ class ExchangeConversionControllerTest {
                                                       .content(objectMapper.writeValueAsString(request))
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(containsInAnyOrder(ValidationErrorMessages.TARGET_CURRENCY_REQUIRED,
-                                                                                 ValidationErrorMessages.TARGET_CURRENCY_CODE)));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .json(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -219,6 +268,11 @@ class ExchangeConversionControllerTest {
             final String timestamp = "2024-01-01T00:00:00Z";
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(SOURCE_CURRENCY_CODE,
+                                                                                               SOURCE_CURRENCY_CODE_ERROR_CODE)});
 
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
@@ -230,9 +284,8 @@ class ExchangeConversionControllerTest {
                                                       .content(objectMapper.writeValueAsString(request))
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.SOURCE_CURRENCY_CODE));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .string(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -241,6 +294,12 @@ class ExchangeConversionControllerTest {
             final String timestamp = "2024-01-01T00:00:00Z";
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(SOURCE_CURRENCY_CODE,
+                                                                                               SOURCE_CURRENCY_CODE_ERROR_CODE)});
+
 
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
@@ -252,9 +311,8 @@ class ExchangeConversionControllerTest {
                                                       .content(objectMapper.writeValueAsString(request))
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.SOURCE_CURRENCY_CODE));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .string(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -263,6 +321,11 @@ class ExchangeConversionControllerTest {
             final String timestamp = "2024-01-01T00:00:00Z";
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(TARGET_CURRENCY_CODE,
+                                                                                               TARGET_CURRENCY_CODE_ERROR_CODE)});
 
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
@@ -274,9 +337,8 @@ class ExchangeConversionControllerTest {
                                                       .content(objectMapper.writeValueAsString(request))
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.TARGET_CURRENCY_CODE));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .string(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -285,6 +347,11 @@ class ExchangeConversionControllerTest {
             final String timestamp = "2024-01-01T00:00:00Z";
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(TARGET_CURRENCY_CODE,
+                                                                                               TARGET_CURRENCY_CODE_ERROR_CODE)});
 
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
@@ -296,9 +363,8 @@ class ExchangeConversionControllerTest {
                                                       .content(objectMapper.writeValueAsString(request))
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.TARGET_CURRENCY_CODE));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .string(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -307,6 +373,12 @@ class ExchangeConversionControllerTest {
             final String timestamp = "2024-01-01T00:00:00Z";
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(
+                                                                                          SOURCE_AND_TARGET_MUST_BE_DIFFERENT,
+                                                                                          SOURCE_AND_TARGET_CURRENCIES_EQUAL_ERROR_CODE)});
 
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
@@ -318,9 +390,8 @@ class ExchangeConversionControllerTest {
                                                       .content(objectMapper.writeValueAsString(request))
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.SOURCE_AND_TARGET_MUST_BE_DIFFERENT));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .string(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -354,15 +425,20 @@ class ExchangeConversionControllerTest {
 
             final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
 
+            final ErrorResponse expectedErrorResponse = new ErrorResponse(instant,
+                                                                          new AppError[]{
+                                                                                  new AppError(
+                                                                                          CONVERSION_HISTORY_ID_OR_DATE_REQUIRED,
+                                                                                          CONVERSION_HISTORY_ID_AND_DATE_NULL_ERROR_CODE)});
+
             try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
                 mockedStatic.when(Instant::now).thenReturn(instant);
 
                 mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/conversions/history")
                                                       .accept(MediaType.APPLICATION_JSON))
                        .andExpect(status().isBadRequest())
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                       .value(ValidationErrorMessages.CONVERSION_HISTORY_ID_OR_DATE_REQUIRED));
+                       .andExpect(MockMvcResultMatchers.content()
+                                                       .string(objectMapper.writeValueAsString(expectedErrorResponse)));
             }
         }
 
@@ -397,7 +473,8 @@ class ExchangeConversionControllerTest {
                                                                        .format(DateTimeFormatter.ISO_DATE))
                                                   .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isOk())
-                   .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(exchangeConversionPage)));
+                   .andExpect(MockMvcResultMatchers.content()
+                                                   .string(objectMapper.writeValueAsString(exchangeConversionPage)));
         }
     }
 }

@@ -113,6 +113,27 @@ class ExchangeRateControllerTest {
     }
 
     @Test
+    void getExchangeRateBetween_whenTargetCurrencyAndSourceCurrencySame_returnsBadRequestErrorResponse() throws Exception {
+        final String timestamp = "2024-01-01T00:00:00Z";
+
+        final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+        try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
+            mockedStatic.when(Instant::now).thenReturn(instant);
+
+            mockMvc.perform(MockMvcRequestBuilders
+                                    .get("/api/v1/exchange-rate")
+                                    .queryParam("sourceCurrency", "EUR")
+                                    .queryParam("targetCurrency", "EUR")
+                                    .accept(MediaType.APPLICATION_JSON))
+                   .andExpect(status().isBadRequest())
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                                   .value(ValidationErrorMessages.SOURCE_AND_TARGET_MUST_BE_DIFFERENT));
+        }
+    }
+
+    @Test
     void getExchangeRateBetween_returnsUSDToEURExchangeRate() throws Exception {
         final String sourceCurrency = "USD";
         final String targetCurrency = "EUR";

@@ -32,10 +32,10 @@ public class Conversion {
     @Column(nullable = false)
     private String targetCurrency;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 24, scale = 6)
     private BigDecimal amount;
 
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 24, scale = 6)
     private BigDecimal exchangeRate;
 
     @CreationTimestamp

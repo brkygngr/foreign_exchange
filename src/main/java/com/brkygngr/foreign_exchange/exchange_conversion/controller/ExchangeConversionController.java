@@ -22,7 +22,7 @@ public class ExchangeConversionController {
     private final ExchangeConversionService exchangeConversionService;
 
     @PostMapping("/conversions")
-    public ResponseEntity<ExchangeConversion> getConversion(
+    public ResponseEntity<ExchangeConversion> postConversion(
             @RequestBody @Valid ExchangeConversionRequest exchangeConversionRequest) {
 
         ExchangeConversion exchangeConversion = exchangeConversionService.convertAmount(

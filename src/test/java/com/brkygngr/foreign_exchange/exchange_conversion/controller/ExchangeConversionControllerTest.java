@@ -303,6 +303,28 @@ class ExchangeConversionControllerTest {
         }
 
         @Test
+        void whenTargetCurrencyAndSourceCurrencySame_returnsBadRequestErrorResponse() throws Exception {
+            final String timestamp = "2024-01-01T00:00:00Z";
+
+            final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
+                mockedStatic.when(Instant::now).thenReturn(instant);
+
+                final ExchangeConversionRequest request = new ExchangeConversionRequest(BigDecimal.ONE, "USD", "USD");
+
+                mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/conversions")
+                                                      .contentType(MediaType.APPLICATION_JSON)
+                                                      .content(objectMapper.writeValueAsString(request))
+                                                      .accept(MediaType.APPLICATION_JSON))
+                       .andExpect(status().isBadRequest())
+                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
+                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                                       .value(ValidationErrorMessages.SOURCE_AND_TARGET_MUST_BE_DIFFERENT));
+            }
+        }
+
+        @Test
         void returnsConvertedAmount() throws Exception {
             ExchangeConversion expected = new ExchangeConversion(UUID.randomUUID(), BigDecimal.TEN);
 

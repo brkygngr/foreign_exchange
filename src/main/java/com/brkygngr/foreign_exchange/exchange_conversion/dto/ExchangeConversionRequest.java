@@ -1,5 +1,6 @@
 package com.brkygngr.foreign_exchange.exchange_conversion.dto;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -24,4 +25,8 @@ public record ExchangeConversionRequest(@NotNull(message = ValidationErrorMessag
                                         )
                                         String targetCurrency) {
 
+    @AssertTrue(message = ValidationErrorMessages.SOURCE_AND_TARGET_MUST_BE_DIFFERENT)
+    private boolean isSourceAndTargetDifferent() {
+        return !sourceCurrency.equals(targetCurrency);
+    }
 }

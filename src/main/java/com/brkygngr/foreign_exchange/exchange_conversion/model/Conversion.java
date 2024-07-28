@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.CreatedDate;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -38,7 +38,7 @@ public class Conversion {
     @Column(nullable = false)
     private BigDecimal exchangeRate;
 
-    @CreatedDate
+    @CreationTimestamp
     private Instant createdAt;
 
     public BigDecimal convertedAmount() {

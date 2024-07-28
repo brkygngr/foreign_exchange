@@ -1,30 +1,32 @@
 package com.brkygngr.foreign_exchange.exchange_conversion.dto;
 
+import com.brkygngr.foreign_exchange.validation.ConversionAmountNotNull;
 import com.brkygngr.foreign_exchange.validation.CurrencyCode;
 import com.brkygngr.foreign_exchange.validation.FirstGroup;
 import com.brkygngr.foreign_exchange.validation.SecondGroup;
 import com.brkygngr.foreign_exchange.validation.CurrencyNotBlank;
 import jakarta.validation.GroupSequence;
 import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 import java.math.BigDecimal;
 
 import com.brkygngr.foreign_exchange.exception.ValidationErrorMessages;
 
+import static com.brkygngr.foreign_exchange.exception.ErrorCodes.CONVERSION_AMOUNT_NULL_ERROR_CODE;
 import static com.brkygngr.foreign_exchange.exception.ErrorCodes.SOURCE_CURRENCY_BLANK_ERROR_CODE;
 import static com.brkygngr.foreign_exchange.exception.ErrorCodes.SOURCE_CURRENCY_CODE_ERROR_CODE;
 import static com.brkygngr.foreign_exchange.exception.ErrorCodes.TARGET_CURRENCY_BLANK_ERROR_CODE;
 import static com.brkygngr.foreign_exchange.exception.ErrorCodes.TARGET_CURRENCY_CODE_ERROR_CODE;
+import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.CONVERSION_AMOUNT_REQUIRED;
 import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.SOURCE_CURRENCY_CODE;
 import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.SOURCE_CURRENCY_REQUIRED;
 import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.TARGET_CURRENCY_CODE;
 import static com.brkygngr.foreign_exchange.exception.ValidationErrorMessages.TARGET_CURRENCY_REQUIRED;
 
 @GroupSequence({ExchangeConversionRequest.class, FirstGroup.class, SecondGroup.class})
-public record ExchangeConversionRequest(@NotNull(message = ValidationErrorMessages.CONVERSION_AMOUNT_REQUIRED,
-                                                 groups = FirstGroup.class)
+public record ExchangeConversionRequest(@ConversionAmountNotNull(message = CONVERSION_AMOUNT_REQUIRED,
+                                                                 errorCode = CONVERSION_AMOUNT_NULL_ERROR_CODE)
                                         @Positive(message = ValidationErrorMessages.CONVERSION_AMOUNT_POSITIVE,
                                                   groups = FirstGroup.class)
                                         BigDecimal amount,

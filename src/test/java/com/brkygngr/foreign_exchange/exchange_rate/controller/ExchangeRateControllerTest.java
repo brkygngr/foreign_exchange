@@ -1,6 +1,7 @@
 package com.brkygngr.foreign_exchange.exchange_rate.controller;
 
 import com.brkygngr.foreign_exchange.exception.InvalidCurrencyException;
+import com.brkygngr.foreign_exchange.exception.ValidationErrorMessages;
 import com.brkygngr.foreign_exchange.exchange_rate.dto.ExchangeRate;
 import com.brkygngr.foreign_exchange.exchange_rate.service.ExchangeRateService;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,7 @@ class ExchangeRateControllerTest {
                                     .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value("Source currency is required!"));
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value(ValidationErrorMessages.SOURCE_CURRENCY_REQUIRED));
         }
     }
 
@@ -65,7 +66,7 @@ class ExchangeRateControllerTest {
                                     .accept(MediaType.APPLICATION_JSON))
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
-                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value("Target currency is required!"));
+                   .andExpect(MockMvcResultMatchers.jsonPath("$.errors").value(ValidationErrorMessages.TARGET_CURRENCY_REQUIRED));
         }
     }
 
@@ -86,7 +87,7 @@ class ExchangeRateControllerTest {
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
                    .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                   .value("Source currency must be a three letter source currency code!"));
+                                                   .value(ValidationErrorMessages.SOURCE_CURRENCY_LENGTH));
         }
     }
 
@@ -107,7 +108,7 @@ class ExchangeRateControllerTest {
                    .andExpect(status().isBadRequest())
                    .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
                    .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
-                                                   .value("Target currency must be a three letter source currency code!"));
+                                                   .value(ValidationErrorMessages.TARGET_CURRENCY_LENGTH));
         }
     }
 

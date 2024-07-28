@@ -4,6 +4,7 @@ import com.brkygngr.foreign_exchange.exception.ErrorResponse;
 import com.brkygngr.foreign_exchange.exchange_conversion.dto.ConversionHistoryQuery;
 import com.brkygngr.foreign_exchange.exchange_conversion.dto.ExchangeConversion;
 import com.brkygngr.foreign_exchange.exchange_conversion.dto.ExchangeConversionRequest;
+import com.brkygngr.foreign_exchange.exchange_conversion.service.ConversionHistoryService;
 import com.brkygngr.foreign_exchange.exchange_conversion.service.ExchangeConversionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -14,6 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/conversions")
@@ -31,6 +33,8 @@ import java.util.List;
 public class ExchangeConversionController {
 
     private final ExchangeConversionService exchangeConversionService;
+
+    private final ConversionHistoryService conversionHistoryService;
 
     @PostMapping
     @Operation(summary = "Converts given amount from source to target currency")
@@ -79,8 +83,8 @@ public class ExchangeConversionController {
                                         description = "Currency invalid errors",
                                         content = @Content(mediaType = "application/json",
                                                            schema = @Schema(implementation = ErrorResponse.class)))})
-    public ResponseEntity<List<ExchangeConversion>> getConversionHistory(
-            @ParameterObject @Valid ConversionHistoryQuery conversionHistoryQuery) {
-        return null;
+    public ResponseEntity<Page<ExchangeConversion>> getConversionHistory(
+            @ParameterObject @Valid ConversionHistoryQuery conversionHistoryQuery, @ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(conversionHistoryService.getHistoryByQuery(conversionHistoryQuery, pageable));
     }
 }

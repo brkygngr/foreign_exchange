@@ -19,7 +19,9 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -320,6 +322,46 @@ class ExchangeConversionControllerTest {
                    .andExpect(MockMvcResultMatchers.header().string("location", "http://localhost/api/v1/conversions/" + expected.id()))
                    .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(expected.id().toString()))
                    .andExpect(MockMvcResultMatchers.jsonPath("$.convertedAmount").value(expected.convertedAmount()));
+        }
+    }
+
+    @Nested
+    class GetConversionHistory {
+        @Test
+        void whenIDAndDateIsNull_returnsBadRequestErrorResponse() throws Exception {
+            final String timestamp = "2024-01-01T00:00:00Z";
+
+            final Instant instant = Instant.now(Clock.fixed(Instant.parse(timestamp), ZoneId.of("UTC")));
+
+            try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
+                mockedStatic.when(Instant::now).thenReturn(instant);
+
+                mockMvc.perform(MockMvcRequestBuilders
+                                        .get("/api/v1/conversions/history")
+                                        .accept(MediaType.APPLICATION_JSON))
+                       .andExpect(status().isBadRequest())
+                       .andExpect(MockMvcResultMatchers.jsonPath("$.timestamp").value(timestamp))
+                       .andExpect(MockMvcResultMatchers.jsonPath("$.errors")
+                                                       .value(ValidationErrorMessages.CONVERSION_HISTORY_REQUIRED));
+            }
+        }
+
+        @Test
+        void whenOnlyIDIsAvailableAndIDIsValid_returnsOkResponse() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders
+                                    .get("/api/v1/conversions/history")
+                                    .queryParam("transactionID", UUID.randomUUID().toString())
+                                    .accept(MediaType.APPLICATION_JSON))
+                   .andExpect(status().isOk());
+        }
+
+        @Test
+        void whenOnlyDateIsAvailableAndDateIsValid_returnsOkResponse() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders
+                                    .get("/api/v1/conversions/history")
+                                    .queryParam("transactionDate", LocalDate.of(2024, 1, 1).format(DateTimeFormatter.ISO_DATE))
+                                    .accept(MediaType.APPLICATION_JSON))
+                   .andExpect(status().isOk());
         }
     }
 }

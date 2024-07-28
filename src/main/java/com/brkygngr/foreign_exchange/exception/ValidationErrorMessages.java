@@ -8,4 +8,5 @@ public class ValidationErrorMessages {
     public static final String TARGET_CURRENCY_REQUIRED = "Target currency is required!";
     public static final String SOURCE_CURRENCY_LENGTH = "Source currency must be a three letter currency code!";
     public static final String TARGET_CURRENCY_LENGTH = "Target currency must be a three letter currency code!";
+    public static final String CONVERSION_HISTORY_REQUIRED = "Either transaction ID or date is required!";
 }

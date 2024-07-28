@@ -5,14 +5,15 @@ import jakarta.validation.constraints.AssertTrue;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.UUID;
 
-public record ConversionHistoryQuery(UUID transactionID,
+public record ConversionHistoryQuery(Optional<UUID> transactionID,
                                      @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                                     LocalDate transactionDate) {
+                                     Optional<LocalDate> transactionDate) {
 
     @AssertTrue(message = ValidationErrorMessages.CONVERSION_HISTORY_REQUIRED)
     private boolean isIDOrDateNotNull() {
-        return transactionID != null || transactionDate != null;
+        return transactionID.isPresent() || transactionDate.isPresent();
     }
 }
